@@ -17,13 +17,13 @@ REPORT_TARGETS_FILE = 'report_targets.txt'
 DEFAULT_CONFIG = {
     "accounts": [
         {
-            "api_id": 27494996,
-            "api_hash": "791274de917e999ebab112e60f3a163e",
+            "api_id": 26245670,
+            "api_hash": "a02a7cdf60f9c7beaae80470227f3d04",
             "session_name": "my_account",
             "active": True
         }
     ],
-    "admin_id": 
+    "admin_id": 7218474237
 }
 
 # Speed presets (messages per second)
