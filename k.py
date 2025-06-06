@@ -470,6 +470,8 @@ async def ruko(event):
 
 # ... [include all the other existing commands like /ac, /dc, /cc, etc.] ...
 
+
+
 @main_client.on(events.NewMessage(pattern='/help'))
 async def show_help(event):
     if event.sender_id != admin_id:
@@ -541,18 +543,64 @@ async def initialize_clients():
             print(f"Failed to initialize {account['session_name']}: {str(e)}")
             
 async def main():
-    # Create files if they don't exist
+    # Ensure required files exist
     for file in [CAPTION_FILE, TARGETS_FILE, DELAY_FILE, APPROVED_USERS_FILE, REPORT_TARGETS_FILE]:
         if not os.path.exists(file):
-            open(file, 'w').close()
+            try:
+                open(file, 'w').close()
+            except Exception as e:
+                logger.error(f"Failed to create {file}: {e}")
+
+    logger.info("💣 Starting ULTRA SPAM BOT v4.0")
     
-    print("💣 **ULTRA SPAM BOT v4.0 STARTED!**")
     try:
         await initialize_clients()
-        await main_client.run_until_disconnected()
+        logger.info(f"Initialized {len(clients)} clients")
+        
+        # Start the main client
+        await main_client.start()
+        me = await main_client.get_me()
+        logger.info(f"Main client started as @{me.username} ({me.id})")
+        
+        # Keep the bot running
+        while True:
+            await asyncio.sleep(3600)  # Sleep for 1 hour
+            
+    except KeyboardInterrupt:
+        logger.info("Received stop signal")
     except Exception as e:
-        print(f"Error: {e}")
+        logger.error(f"Fatal error: {e}")
     finally:
-        # Force disconnect without saving state
+        logger.info("Shutting down...")
+        # Disconnect all clients
+        for client in clients:
+            try:
+                await client.disconnect()
+            except:
+                pass
         await main_client.disconnect()
+        logger.info("Shutdown complete")
+
+if __name__ == '__main__':
+    try:
+        # Create a new event loop
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        
+        # Run the main function
+        loop.run_until_complete(main())
+    except KeyboardInterrupt:
+        logger.info("Bot stopped by user")
+    except Exception as e:
+        logger.error(f"Critical error: {e}")
+    finally:
+        # Cleanup
+        tasks = asyncio.all_tasks(loop)
+        for task in tasks:
+            task.cancel()
+        loop.close()
+        logger.info("Event loop closed")
+
+
+
 
